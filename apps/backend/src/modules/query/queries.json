@@ -1,0 +1,94 @@
+{
+  "queries": [
+    {
+      "id": "neo4j-01",
+      "label": "Simple Node Match",
+      "source": "neo4j",
+      "statement": "MATCH (n) RETURN count(n)"
+    },
+    {
+      "id": "neo4j-02", 
+      "label": "Relationship Traversal",
+      "source": "neo4j",
+      "statement": "MATCH (a)-[r]->(b) RETURN count(r)"
+    },
+    {
+      "id": "neo4j-03",
+      "label": "Pattern Match with Filter",
+      "source": "neo4j", 
+      "statement": "MATCH (p:Person) WHERE p.age > 25 RETURN count(p)"
+    },
+    {
+      "id": "neo4j-04",
+      "label": "Multi-hop Traversal",
+      "source": "neo4j",
+      "statement": "MATCH (a)-[*1..3]->(b) RETURN count(DISTINCT b) LIMIT 1000"
+    },
+    {
+      "id": "neo4j-05",
+      "label": "Aggregation Query",
+      "source": "neo4j",
+      "statement": "MATCH (p:Person) RETURN p.department, avg(p.salary) ORDER BY avg(p.salary) DESC"
+    },
+    {
+      "id": "neo4j-06",
+      "label": "Complex Join Pattern",
+      "source": "neo4j",
+      "statement": "MATCH (p:Person)-[:WORKS_FOR]->(c:Company), (p)-[:LIVES_IN]->(city:City) RETURN p.name, c.name, city.name LIMIT 100"
+    },
+    {
+      "id": "neo4j-07",
+      "label": "Shortest Path",
+      "source": "neo4j",
+      "statement": "MATCH path = shortestPath((a:Person {name: 'Alice'})-[*]-(b:Person {name: 'Bob'})) RETURN length(path)"
+    },
+    {
+      "id": "neo4j-08",
+      "label": "Index Lookup",
+      "source": "neo4j",
+      "statement": "MATCH (p:Person) WHERE p.email = 'john.doe@example.com' RETURN p"
+    },
+    {
+      "id": "es-01",
+      "label": "Match All Query",
+      "source": "es",
+      "statement": "{\"query\": {\"match_all\": {}}, \"size\": 10}"
+    },
+    {
+      "id": "es-02", 
+      "label": "Term Query",
+      "source": "es",
+      "statement": "{\"query\": {\"term\": {\"status\": \"active\"}}, \"size\": 100}"
+    },
+    {
+      "id": "es-03",
+      "label": "Range Query",
+      "source": "es", 
+      "statement": "{\"query\": {\"range\": {\"age\": {\"gte\": 25, \"lte\": 65}}}, \"size\": 50}"
+    },
+    {
+      "id": "es-04",
+      "label": "Boolean Query",
+      "source": "es",
+      "statement": "{\"query\": {\"bool\": {\"must\": [{\"match\": {\"title\": \"search\"}}, {\"range\": {\"date\": {\"gte\": \"2023-01-01\"}}}]}}, \"size\": 20}"
+    },
+    {
+      "id": "es-05",
+      "label": "Aggregation Query",  
+      "source": "es",
+      "statement": "{\"size\": 0, \"aggs\": {\"categories\": {\"terms\": {\"field\": \"category.keyword\"}}}}"
+    },
+    {
+      "id": "es-06",
+      "label": "Fuzzy Search",
+      "source": "es",
+      "statement": "{\"query\": {\"fuzzy\": {\"name\": {\"value\": \"john\", \"fuzziness\": \"AUTO\"}}}, \"size\": 25}"
+    },
+    {
+      "id": "es-07",
+      "label": "Wildcard Search",
+      "source": "es", 
+      "statement": "{\"query\": {\"wildcard\": {\"email\": \"*@company.com\"}}, \"size\": 30}"
+    }
+  ]
+} 
