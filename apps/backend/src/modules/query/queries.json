@@ -31,24 +31,6 @@
       "statement": "MATCH (p:Person) RETURN p.department, avg(p.salary) ORDER BY avg(p.salary) DESC"
     },
     {
-      "id": "neo4j-06",
-      "label": "Complex Join Pattern",
-      "source": "neo4j",
-      "statement": "MATCH (p:Person)-[:WORKS_FOR]->(c:Company), (p)-[:LIVES_IN]->(city:City) RETURN p.name, c.name, city.name LIMIT 100"
-    },
-    {
-      "id": "neo4j-07",
-      "label": "Shortest Path",
-      "source": "neo4j",
-      "statement": "MATCH path = shortestPath((a:Person {name: 'Alice'})-[*]-(b:Person {name: 'Bob'})) RETURN length(path)"
-    },
-    {
-      "id": "neo4j-08",
-      "label": "Index Lookup",
-      "source": "neo4j",
-      "statement": "MATCH (p:Person) WHERE p.email = 'john.doe@example.com' RETURN p"
-    },
-    {
       "id": "es-01",
       "label": "Match All Query",
       "source": "es",
@@ -77,18 +59,6 @@
       "label": "Aggregation Query",  
       "source": "es",
       "statement": "{\"size\": 0, \"aggs\": {\"categories\": {\"terms\": {\"field\": \"category.keyword\"}}}}"
-    },
-    {
-      "id": "es-06",
-      "label": "Fuzzy Search",
-      "source": "es",
-      "statement": "{\"query\": {\"fuzzy\": {\"name\": {\"value\": \"john\", \"fuzziness\": \"AUTO\"}}}, \"size\": 25}"
-    },
-    {
-      "id": "es-07",
-      "label": "Wildcard Search",
-      "source": "es", 
-      "statement": "{\"query\": {\"wildcard\": {\"email\": \"*@company.com\"}}, \"size\": 30}"
     }
   ]
 } 

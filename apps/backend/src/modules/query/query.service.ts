@@ -3,25 +3,19 @@ import { performance } from 'perf_hooks';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Local type definitions to avoid shared library dependency issues
+// Local type definitions to avoid import issues
 interface QueryDefinition {
   id: string;
-  name: string;
-  description: string;
-  database: 'neo4j' | 'elasticsearch';
-  query: string;
-  expectedResultCount?: number;
+  label: string;
+  source: "neo4j" | "es";
+  statement: string;
 }
 
 interface QueryResult {
   id: string;
-  name: string;
-  database: 'neo4j' | 'elasticsearch';
-  status: 'idle' | 'running' | 'completed' | 'error';
-  executionTime?: number;
-  resultCount?: number;
+  startedAt: Date;
+  durationMs: number;
   error?: string;
-  timestamp: string;
 }
 
 @Injectable()
@@ -41,26 +35,26 @@ export class QueryService implements OnModuleInit {
       this.logger.log(`Loaded ${this.queries.length} queries`);
     } catch (error) {
       this.logger.error('Failed to load queries', error);
-      // Provide fallback queries if file doesn't exist
-      this.queries = [
-        {
-          id: 'neo4j-1',
-          name: 'Neo4j Node Count',
-          description: 'Count all nodes in the database',
-          database: 'neo4j',
-          query: 'MATCH (n) RETURN count(n) as nodeCount',
-          expectedResultCount: 1
-        },
-        {
-          id: 'es-1',
-          name: 'Elasticsearch Match All',
-          description: 'Match all documents',
-          database: 'elasticsearch',
-          query: '{"query": {"match_all": {}}}',
-          expectedResultCount: 100
-        }
-      ];
+      // Use default queries if file not found
+      this.queries = this.getDefaultQueries();
     }
+  }
+
+  private getDefaultQueries(): QueryDefinition[] {
+    return [
+      {
+        id: "neo4j-01",
+        label: "Simple Node Match",
+        source: "neo4j",
+        statement: "MATCH (n) RETURN count(n)"
+      },
+      {
+        id: "es-01",
+        label: "Match All Query",
+        source: "es",
+        statement: "{\"query\": {\"match_all\": {}}, \"size\": 10}"
+      }
+    ];
   }
 
   getQueries(): QueryDefinition[] {
@@ -78,55 +72,45 @@ export class QueryService implements OnModuleInit {
     }
 
     const startTime = performance.now();
-    const timestamp = new Date().toISOString();
+    const startedAt = new Date();
 
     try {
-      // Simulate query execution for now
+      // Simulate query execution
       await this.simulateQueryExecution(query);
-
+      
       const endTime = performance.now();
-      const executionTime = Math.round(endTime - startTime);
+      const durationMs = Math.round(endTime - startTime);
 
-      this.logger.log(`Query ${queryId} completed in ${executionTime}ms`);
+      this.logger.log(`Query ${queryId} completed in ${durationMs}ms`);
 
       return {
         id: queryId,
-        name: query.name,
-        database: query.database,
-        status: 'completed',
-        executionTime,
-        resultCount: query.expectedResultCount || 0,
-        timestamp,
+        startedAt,
+        durationMs,
       };
     } catch (error) {
       const endTime = performance.now();
-      const executionTime = Math.round(endTime - startTime);
+      const durationMs = Math.round(endTime - startTime);
       
-      this.logger.error(`Query ${queryId} failed after ${executionTime}ms`, error);
+      this.logger.error(`Query ${queryId} failed after ${durationMs}ms`, error);
 
       return {
         id: queryId,
-        name: query.name,
-        database: query.database,
-        status: 'error',
-        executionTime,
+        startedAt,
+        durationMs: -1,
         error: (error as Error).message,
-        timestamp,
       };
     }
   }
 
   private async simulateQueryExecution(query: QueryDefinition): Promise<void> {
-    // Simulate different execution times based on query complexity
-    const baseTime = query.database === 'neo4j' ? 100 : 50;
-    const randomFactor = Math.random() * 2000; // 0-2000ms
-    const simulatedTime = baseTime + randomFactor;
+    // Simulate query execution time
+    const delay = Math.random() * 2000 + 100; // 100-2100ms
+    await new Promise(resolve => setTimeout(resolve, delay));
     
-    await new Promise(resolve => setTimeout(resolve, simulatedTime));
-    
-    // Simulate occasional failures (5% chance)
-    if (Math.random() < 0.05) {
-      throw new Error(`Simulated ${query.database} connection error`);
+    // Simulate occasional failures
+    if (Math.random() < 0.1) {
+      throw new Error(`Simulated ${query.source} connection error`);
     }
   }
 } 
